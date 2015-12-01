@@ -19,7 +19,7 @@ class Point:
 		
 	def getDistance(self, p2):
 		'''Gets the actual distance between two points'''
-		return round(math.sqrt(self.getRelativeDistance(p2)))
+		return int(round(math.sqrt(self.getRelativeDistance(p2))))
 
 def loadCities(filename):
 	input_file = open(filename, "r")
@@ -74,6 +74,9 @@ def nearestNeighborTSP(cities, startingCity):
 		path.append(closestNeighbor)
 		curCity = closestNeighbor
 		
+	#add the last leg from the last city back to the first
+	pathLength += cities[startingCity].getDistance(cities[curCity])
+		
 	return (int(pathLength), path)
 	
 def repeatitiveNearestNeighborTSP(cities):
@@ -99,6 +102,31 @@ def randomNearestNeighbor(cities):
 	startingCity = random.randint(0, len(cities))
 	return nearestNeighborTSP(cities, startingCity)
 
+def twoopt(cities, tour, distance):
+	path = tour
+	length = distance
+	for i in range(1, len(path) - 2):
+		for k in range(i + 1, len(path)-2):
+			#city1 = i-1
+			city1 = cities[path[i-1]]
+			#city2 = i
+			city2 = cities[path[i]]
+			#city3 = k
+			city3 = cities[path[k]]
+			#city4 = k + 1
+			city4 = cities[path[k+1]]
+			if ((city1.getRelativeDistance(city2) + city3.getRelativeDistance(city4)) > (city1.getRelativeDistance(city3) + city2.getRelativeDistance(city4))):
+				if ((city1.getDistance(city2) + city3.getDistance(city4)) > (city1.getDistance(city3) + city2.getDistance(city4))):
+					#subtract the original distance and add the new distance
+					length -= ((city1.getDistance(city2) + city3.getDistance(city4)) - (city1.getDistance(city3) + city2.getDistance(city4)))
+
+					newPath = path[0:i]
+					newPath += path[k:i-1:-1]
+					newPath += path[k+1:]
+					return twoopt(cities, newPath, length)
+						
+	return (length, path)
+
 if __name__ == "__main__":
 	p = optparse.OptionParser()
 	
@@ -106,9 +134,13 @@ if __name__ == "__main__":
 	
 	cities = loadCities(args[0])
 	
-	random.seed()
+	#random.seed()
 		
 	(distance, path) = randomNearestNeighbor(cities)
+	print("Distance with random nearest neighbor: ", distance)
+	
+	(distance, path) = twoopt(cities, path, distance)
+	print("Distance after 2-opt", distance)
 
 	output_file = open(args[0] + ".path", "w")
 	print(distance, file=output_file)
