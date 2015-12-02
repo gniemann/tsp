@@ -189,7 +189,7 @@ int main(int argc, char **argv)
 	vector<int> path = getApproximateTSP(cities);
 	int distance = getPathDistance(path, cities);
 	
-	output(filename + ".path", path, distance);	
+	output(filename + ".tour", path, distance);	
 	
 	return 0;
 }
