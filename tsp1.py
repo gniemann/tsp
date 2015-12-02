@@ -142,7 +142,7 @@ if __name__ == "__main__":
 	(distance, path) = twoopt(cities, path, distance)
 	print("Distance after 2-opt", distance)
 
-	output_file = open(args[0] + ".path", "w")
+	output_file = open(args[0] + ".tour", "w")
 	print(distance, file=output_file)
 	for city in path:
 		print(city, file=output_file)
