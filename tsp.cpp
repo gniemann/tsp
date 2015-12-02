@@ -121,8 +121,6 @@ int getPathDistance(const vector<int> &path, const Points &cities)
 
 vector<int> randomNearestNeighborTSP(const Points &cities)
 {
-	srand(time(NULL));
-	
 	int startingCity = random() % cities.size();
 	
 	return nearestNeighborTSP(cities, startingCity);
@@ -152,7 +150,7 @@ vector<int> twoopt(const Points &cities, const vector<int> &path)
 			int city4 = newPath[k+1];
 			if ((cities[city1].getDistance(cities[city2]) + cities[city3].getDistance(cities[city4])) >
 				(cities[city1].getDistance(cities[city3]) + cities[city2].getDistance(cities[city4]))) {
-					reverse(newPath.begin() + i, newPath.begin() + k + 1);				
+					reverse(newPath.begin() + i, newPath.begin() + k + 1);	
 			}
 		}
 	}
@@ -163,10 +161,15 @@ vector<int> getApproximateTSP(const Points &cities)
 {
 	vector<int> path = randomNearestNeighborTSP(cities);
 	
-	
+	const int ALT_PATHS = 5;
+	for (int i = 0; i < ALT_PATHS; i++) {
+		vector<int> altPath = randomNearestNeighborTSP(cities);
+		if (getPathDistance(path, cities) > getPathDistance(altPath, cities))
+			path = altPath;
+	}
+		
 	vector<int> newPath = twoopt(cities, path);
-	
-	
+		
 	while (!equal(path.begin(), path.end(), newPath.begin())) {
 		path = newPath;
 		newPath = twoopt(cities, path);
@@ -182,6 +185,8 @@ int main(int argc, char **argv)
 		cerr << "usage: tsp input_filename" << endl;
 		return 1;
 	}
+
+	srand(time(NULL));
 	
 	string filename(argv[1]);
 	Points cities = loadCities(filename);
