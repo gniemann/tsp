@@ -64,7 +64,7 @@ int getNextCity(int curCity, const Points &cities, const vector<int> &remainingC
 	int closestCity = remainingCities[0];
 	int minRelDistance = cities[curCity].getRelativeDistance(cities[closestCity]);
 	
-	for (int i = 1; i < remainingCities.size(); i++) {
+	for (size_t i = 1; i < remainingCities.size(); i++) {
 		int relDistance = cities[curCity].getRelativeDistance(cities[remainingCities[i]]);
 		if (relDistance < minRelDistance) {
 			minRelDistance = relDistance;
@@ -83,7 +83,7 @@ vector<int> nearestNeighborTSP(const Points &cities, int startingCity)
 	vector<int> remainingCities;
 	remainingCities.reserve(cities.size());
 	
-	for (int i = 0; i < cities.size(); i++)
+	for (size_t i = 0; i < cities.size(); i++)
 		remainingCities.push_back(i);
 		
 	path.push_back(startingCity);
@@ -93,7 +93,7 @@ vector<int> nearestNeighborTSP(const Points &cities, int startingCity)
 	remainingCities.erase(remove(remainingCities.begin(), remainingCities.end(), 
 		startingCity), remainingCities.end());
 	
-	for (int i = 0; i < cities.size() - 1; i++) {
+	for (size_t i = 0; i < cities.size() - 1; i++) {
 		int closestNeighbor = getNextCity(curCity, cities, remainingCities);
 
 		remainingCities.erase(remove(remainingCities.begin(), remainingCities.end(), 
@@ -109,7 +109,7 @@ int getPathDistance(const vector<int> &path, const Points &cities)
 {
 	unsigned int length = 0;
 	int psize = path.size();
-	for (int i = 0; i < path.size() - 1; i++) {
+	for (size_t i = 0; i < path.size() - 1; i++) {
 		length += cities[path[i]].getDistance(cities[path[i + 1]]);
 	}
 	
@@ -132,7 +132,7 @@ void output(const string &filename, const vector<int> &path, int distance)
 	
 	outfile << distance << endl;
 	
-	for (int i = 0; i < path.size(); i++) {
+	for (size_t i = 0; i < path.size(); i++) {
 		outfile << path[i] << endl;
 	}
 	
@@ -142,15 +142,18 @@ void output(const string &filename, const vector<int> &path, int distance)
 vector<int> twoopt(const Points &cities, const vector<int> &path)
 {
 	vector<int> newPath = path;
-	for (int i = 1; i < newPath.size() - 2; i++) {
-		for (int k = i + 1; k < newPath.size() - 2; k++) {
+	for (size_t i = 1; i < newPath.size() - 2; i++) {
+		for (size_t k = i + 1; k < newPath.size() - 2; k++) {
 			int city1 = newPath[i-1];
 			int city2 = newPath[i];
 			int city3 = newPath[k];
 			int city4 = newPath[k+1];
-			if ((cities[city1].getDistance(cities[city2]) + cities[city3].getDistance(cities[city4])) >
-				(cities[city1].getDistance(cities[city3]) + cities[city2].getDistance(cities[city4]))) {
-					reverse(newPath.begin() + i, newPath.begin() + k + 1);	
+			if ((cities[city1].getRelativeDistance(cities[city2]) + cities[city3].getRelativeDistance(cities[city4])) >
+				(cities[city1].getRelativeDistance(cities[city3]) + cities[city2].getRelativeDistance(cities[city4]))) {
+				if ((cities[city1].getDistance(cities[city2]) + cities[city3].getDistance(cities[city4])) >
+					(cities[city1].getDistance(cities[city3]) + cities[city2].getDistance(cities[city4]))) {
+						reverse(newPath.begin() + i, newPath.begin() + k + 1);	
+				}
 			}
 		}
 	}
